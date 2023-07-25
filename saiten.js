@@ -2,7 +2,7 @@
 
 let w, h;
 let mag_disp;
-const mag_excel = 0.2; //Excelに解答画像を貼り付けるときの縮小率
+const mag_excel = 0.25; //Excelに解答画像を貼り付けるときの縮小率
 let dragged = false;
 let vec;
 let arr = [];
@@ -171,7 +171,7 @@ function attach_ans_to_excel(row, e) {
   let max_row_height = 0;
   for (let a of arr) {
     let p = e.get(a.start_x, a.start_y, a.end_x - a.start_x, a.end_y - a.start_y);
-    p.resize(p.width * mag_excel, p.height * mag_excel);
+    p.resize(int(p.width * mag_excel), 0);
     let logo = wb.addImage({base64: p.canvas.toDataURL(), extension: 'jpg'});
     ws.addImage(logo, {
       tl: { col: col - 1, row: row },
