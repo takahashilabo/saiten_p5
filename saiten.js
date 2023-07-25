@@ -24,11 +24,11 @@ function setup() {
 }
 
 function draw() {
-  if (mode == 0) { //キリトリ位置設定
+  if (mode == 0) {
     background(255);
     fill(0); textSize(20);
     text('1か2を押してください（1:キリトリ位置設定, 2:キリトリ実行)', 0, 20);
-  } else if (mode == 1) { //キリトリ実行
+  } else if (mode == 1) { //キリトリ位置設定
     if (img) {
       image(img, 0, 0, width, height);
       strokeWeight(2);
@@ -43,6 +43,13 @@ function draw() {
         noFill(); stroke(0, 0, 255); strokeWeight(2);
         rect(vec.x, vec.y, mouseX - vec.x, mouseY - vec.y);
       }
+    }
+  } else if (mode == 2) { //キリトリ実行
+    background(255);
+    if (upload_file_num > 0) {
+      fill(0); textSize(20);
+      let s = (upload_file_num < input.elt.files.length - 1) ? `処理中（${upload_file_num}/${input.elt.files.length - 1}）` : '処理完了'; 
+      text(s, 0, 50);
     }
   }
 }
