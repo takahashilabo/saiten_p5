@@ -2,7 +2,7 @@
 
 let w, h;
 let mag_disp;
-const mag_excel = 0.3; //Excelに解答画像を貼り付けるときの縮小率
+const mag_excel = 0.2; //Excelに解答画像を貼り付けるときの縮小率
 let dragged = false;
 let vec;
 let arr = [];
