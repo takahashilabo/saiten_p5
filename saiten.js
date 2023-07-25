@@ -19,6 +19,10 @@ let file_data = {csv:null, img:{}};
 
 function setup() {
   createCanvas(640, 320);
+  init_excel();
+}
+
+function init_excel() {
   wb = new ExcelJS.Workbook(); 
   ws = wb.addWorksheet('a');
 }
@@ -150,6 +154,8 @@ function handleFile_mode2(file) {
           attach_ans_to_excel(i, file_data['img'][keys[i]]);
         }
         save_xlsx();
+        init_excel(); //free
+        file_data = {csv:null, img:{}}; //free
       }
     });
   } else if (file.name.slice(-4) === '.csv') {
