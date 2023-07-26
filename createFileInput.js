@@ -13,21 +13,19 @@ function addElement(elt, pInst, media) {
 p5.prototype.createFileInput2 = function (callback, multiple = false) {
   p5._validateParameters('createFileInput', arguments);
 
+  const handleFileSelect = function (event) {
 //-----------------------------修正開始
-  const handleFileSelect = async function (event) {
-    const sleep = (millisecond) => new Promise(resolve => setTimeout(resolve, millisecond))
-    let fs = {};
+    msg = "ファイル読み込み中です";
+    let fs = [];
     for (const file of event.target.files) {
         if (file.name.slice(-4) === '.csv') {
           p5.File._load(file, callback); //最初にCSVファイルを呼び出す 
         } else {
-          fs[file.name] = file;
+          fs.push(file);
         }
     }
-    let fnames = Object.keys(fs).sort(); //画像データは辞書順ソート
-    for (const f of fnames) {
-      p5.File._load(fs[f], callback);
-      await sleep(100);
+    for (const f of fs) {
+      p5.File._load(f, callback);
     }
 //-----------------------------修正終了
   };
