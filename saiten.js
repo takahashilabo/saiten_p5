@@ -11,11 +11,10 @@ let ans_no = 1;
 let input;
 let img = null;
 let mode = 0; //0:初期, 1:キリトリ位置指定, 2:キリトリ実行
-let upload_file_num = 0;
 let wb;
 let ws;
 const CSV_FILE = 'trimData.csv'
-let file_data = {csv:null, img:{}};
+let uploadfile_count = 0;
 
 function setup() {
   createCanvas(640, 320);
@@ -50,9 +49,9 @@ function draw() {
     }
   } else if (mode == 2) { //キリトリ実行
     background(255);
-    if (upload_file_num > 0) {
+    if (uploadfile_count > 0) {
       fill(0); textSize(20);
-      let s = (upload_file_num < input.elt.files.length - 1) ? `処理中（${upload_file_num}/${input.elt.files.length - 1}）` : '処理完了'; 
+      let s = (uploadfile_count < input.elt.files.length - 1) ? `処理中（${uploadfile_count}/${input.elt.files.length - 1}）` : '処理完了'; 
       text(s, 0, 50);
     }
   }
@@ -87,7 +86,7 @@ function keyPressed() {
     if (key == '2') {
       mode = int(key);
       background(255);
-      input = createFileInput(handleFile_mode2, true); //複数ファイル選択可（CSVファイル＋解答画像群）
+      input = createFileInput2(handleFile_mode2, true); //複数ファイル選択可（CSVファイル＋解答画像群）
       input.position(0, 0);
     }
   } else if (mode == 1) {
@@ -144,43 +143,40 @@ function handleFile_mode1(file) {
 }
 
 function handleFile_mode2(file) {
-  if (file.type === 'image') {
+  print(file.name);
+  if (file.name.slice(-4) === '.csv') { //必ず最初にCSVファイルがくる
+    csv_to_arr(file.data);
+  }
+  else if (file.type === 'image') { //次に画像ファイルが辞書順にくる
     loadImage(file.data, e => {
-      file_data['img'][file.name] = e;
-      if (++upload_file_num >= input.elt.files.length - 1) { //-1 : CSVファイルを除く
-        csv_to_arr(file_data['csv']);
-        let keys = Object.keys(file_data['img']).sort();
-        for (let i = 0; i < keys.length; i++) {
-          attach_ans_to_excel(i, file_data['img'][keys[i]]);
-        }
+      attach_ans_to_excel(e); //e = PImage
+      if (++uploadfile_count >= input.elt.files.length - 1) { //-1 : CSVファイルを除く意味
         save_xlsx();
         init_excel(); //free
-        file_data = {csv:null, img:{}}; //free
       }
     });
-  } else if (file.name.slice(-4) === '.csv') {
-    file_data['csv'] = file.data;
   }
   //input.remove();
 }
 
-function attach_ans_to_excel(row, e) {
+function attach_ans_to_excel(e) {
   e.loadPixels();
   let col = 1;
   let col_width = [];
   let max_row_height = 0;
   for (let a of arr) {
     let p = e.get(a.start_x, a.start_y, a.end_x - a.start_x, a.end_y - a.start_y);
+    p.filter(ERODE); //文字見やすくするため
     p.resize(int(p.width * mag_excel), 0);
     let logo = wb.addImage({base64: p.canvas.toDataURL(), extension: 'jpg'});
     ws.addImage(logo, {
-      tl: { col: col - 1, row: row },
+      tl: { col: col - 1, row: uploadfile_count },
       ext: { width: p.width, height: p.height },
     });
-    ws.getRow(row + 1).getCell(col).fill =  { type: 'pattern', pattern: 'solid', fgColor: { argb:'FF111111' }};
+    ws.getRow(uploadfile_count + 1).getCell(col).fill =  { type: 'pattern', pattern: 'solid', fgColor: { argb:'FF111111' }};
     col_width.push(p.width);
     col_width.push(40);
-    let b = ws.getRow(row + 1).getCell(col+1);
+    let b = ws.getRow(uploadfile_count + 1).getCell(col + 1);
     b.value = 1; //1点
     b.alignment = { vertical: 'top', horizontal: 'left' };
     b.font = {name: 'ＭＳ Ｐゴシック', color: { argb: 'FFFFFFFF' }, family: 1, size: 20};
@@ -195,7 +191,7 @@ function attach_ans_to_excel(row, e) {
     column.width = col_width.shift() * 0.14;
   });
 
-  ws.getRow(row + 1).height = max_row_height;
+  ws.getRow(uploadfile_count + 1).height = max_row_height;
 }
 
 function csv_to_arr(data) {
