@@ -2,7 +2,9 @@
 
 let w, h;
 let mag_disp;
-const mag_excel = 0.25; //Excelに解答画像を貼り付けるときの縮小率
+//const mag_excel = 0.25; //Excelに解答画像を貼り付けるときの縮小率
+const mag_excel = 0.5; //Excelに解答画像を貼り付けるときの縮小率
+                //↑解答画像が潰れて見にくい現象があり。倍率をあげるとスキャン解像度が200dpiでも十分に読めるため変更した 2023/12/21
 let dragged = false;
 let vec;
 let arr = [];
@@ -34,6 +36,8 @@ function draw() {
     background(255);
     fill(0); textSize(20);
     text('1か2を押してください（1:キリトリ位置設定, 2:キリトリ実行)', 0, 20);
+    fill(0,0,255); textSize(11);
+    text('※答案のスキャン解像度を400DPI→200DPIと変更しています。操作方法は従来通りです（2023/12/21）', 0, 40);
   } else if (mode == 1) { //キリトリ位置設定
     if (img) {
       image(img, 0, 0, width, height);
@@ -165,7 +169,7 @@ function handleFile_mode2(file) {
       }
     });
   }
-  input.remove();
+//  input.remove();
 }
 
 function attach_ans_to_excel(filename, e) {
